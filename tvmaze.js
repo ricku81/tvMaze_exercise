@@ -67,10 +67,9 @@ function populateShows (shows) {
 		$showsList.append($item);
 	}
 	// attach function to episode-btn to indentify it's show card and reveal it's episodes
-	$('.episodes-btn').on('click', function (evt) {
+	$('.episodes-btn').on('click', async function (evt) {
 		const id = $(evt.target).closest('.card').data('show-id');
-		console.log(id);
-		populateEpisodes(getEpisodes(id));
+		populateEpisodes(await getEpisodes(id));
 	});
 }
 
@@ -98,16 +97,16 @@ $('#search-form').on('submit', async function handleSearch (evt) {
 
 async function getEpisodes (id) {
 	//  get episodes from tvmaze
-	let res = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
+	const res = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
 	const data = res.data;
 	// return array-of-episode-info, as described in docstring above
 	let episodes = [];
 	// push each episode obj into an array
 	for (let i = 0; i < data.length; i++) {
-		const episodeID = res.data[i].id;
-		const episodeName = res.data[i].name;
-		const episodeSeason = res.data[i].season;
-		const episodeNum = res.data[i].number;
+		const episodeID = data[i].id;
+		const episodeName = data[i].name;
+		const episodeSeason = data[i].season;
+		const episodeNum = data[i].number;
 
 		episodes.push({
 			id     : `${episodeID}`,
@@ -123,12 +122,11 @@ async function getEpisodes (id) {
 function populateEpisodes (episodes) {
 	const $episodesList = $('#episodes-list');
 	$episodesList.empty();
-
 	for (let episode of episodes) {
 		let $item = $(`<li>${episode.name} (season ${episode.season}, number ${episode.number})</li>`);
 
 		$episodesList.append($item);
 	}
+	// reveals episodes
+	$('#episodes-area').show();
 }
-
-// Episodes aren't apeending to page properly
